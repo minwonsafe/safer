@@ -55,6 +55,12 @@ button{font-family:inherit;font-size:inherit;cursor:pointer;border:0;background:
 .topbar .back:active{background:rgba(255,255,255,.18)}
 .topbar h1{margin:0;font-size:1.15625rem;font-weight:800;letter-spacing:-.025em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .org{font-size:0.78125rem;opacity:.75;font-weight:600}
+/* v1.4.1 상황 상세: 색 띠 제목이 상단바 밑으로 가려지면 상단바에 제목 표시 */
+.topbar h1 .t1{display:none}
+.topbar.scrolled h1 .t0{display:none}
+.topbar.scrolled h1 .t1{display:inline;animation:tfade .18s ease-out}
+@keyframes tfade{from{opacity:0;transform:translateY(0.25rem)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.topbar.scrolled h1 .t1{animation:none}}
 
 /* ── 홈 ── */
 .brandbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:0.625rem;
@@ -606,7 +612,20 @@ function render(){
   if(v==='home'){ eqTiles(); bindInstall(); }
   if(v==='timer' && S.startAt) startTick(); else stopTick();
   pillRun();
+  updTopTitle();
 }
+
+/* v1.4.1 상단바 제목 전환 — 색 띠의 제목(h2)이 상단바 아래로 들어가면 켬 */
+function updTopTitle(){
+  var tb=document.querySelector('.topbar.swt'); if(!tb) return;
+  var h=document.querySelector('.band h2');
+  var on=!!h && h.getBoundingClientRect().bottom <= tb.getBoundingClientRect().bottom + 1;
+  if(tb.classList.contains('scrolled')!==on) tb.classList.toggle('scrolled', on);
+}
+var _ttRaf=0;
+function onTTScroll(){ if(_ttRaf) return; _ttRaf=requestAnimationFrame(function(){ _ttRaf=0; updTopTitle(); }); }
+window.addEventListener('scroll', onTTScroll, {passive:true});
+window.addEventListener('resize', onTTScroll);
 
 /* 메인 타일: 같은 줄 두 타일의 부제 높이를 맞춰 제목 높이 정렬 (부제가 둘 다 1줄이면 빈 줄 없음) */
 function eqTiles(){
@@ -700,7 +719,7 @@ function phonePanel(keys, active){
 function vSituD(id){
   var s=findSitu(id);
   if(!s) return vSitu();
-  var head='<div class="topbar"><button class="back" id="back">\u2039</button><h1>'+(s.urgent?'긴급 상황':'')+'</h1></div>' +
+  var head='<div class="topbar swt"><button class="back" id="back">\u2039</button><h1><span class="t0">'+(s.urgent?'긴급 상황':'')+'</span><span class="t1">'+(s.urgent?'긴급 \u2014 ':'')+s.t+'</span></h1></div>' +
     '<div class="band"><span class="bic">'+ic(s.pic)+'</span><div><h2>'+s.t+'</h2><p>'+s.s+'</p></div></div>';
 
   if(s.id==='p5'){
@@ -1342,7 +1361,7 @@ var LAW = [
    l:[{r:'형법 제141조제1항(공용서류등무효)', p:'7년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
       {r:'형법 제141조제2항(공용물파괴)', p:'1년 이상 10년 이하 징역', pr:'none'},
       {r:'형법 제144조(특수공무방해)', p:'단체·다중의 위력 또는 위험한 물건 휴대 시 1/2까지 가중'}],
-   n:'서류를 손상·은닉한 경우와 건조물·기물을 파괴한 경우의 조문이 다릅니다.'},
+   n:'파티션·집기 등 사무실 물건을 부순 경우도 <b>공용서류등무효죄</b>로 처리됩니다(실제 사례 2). 공용물파괴죄는 청사 건물 자체를 파괴한 경우입니다.'},
 
   {id:8, t:'업무방해', a:'허위사실 유포, 위계 또는 위력으로 업무를 방해',
    l:[{r:'형법 제314조제1항(업무방해)', p:'5년 이하 징역 또는 1,500만원 이하 벌금', pr:'none'},
