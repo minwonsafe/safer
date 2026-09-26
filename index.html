@@ -434,6 +434,21 @@ body{background:linear-gradient(180deg,#F6F7FA 0%,#F1F3F6 55%,#F4F5F8 100%)}
 
 
 
+/* ── 메인 화면 개편 (v1.7) — 히어로 2줄 문구, 타일: 원형 선 아이콘 + 제목 옆 화살표 ── */
+.hero{padding:1.375rem 4.25rem 1.5rem 1.25rem}
+.hero h2{margin:0;font-size:1.0625rem;line-height:1.45;letter-spacing:-.04em;font-weight:800;word-break:keep-all}
+.hero h2 .hl{color:#A9CCFF}
+.hero .setbtn{top:50%;transform:translateY(-50%)}
+.mtile{justify-content:flex-start;min-height:11.25rem;padding:1.125rem 1rem 1.125rem}
+.mbub{position:relative;z-index:2;width:3.875rem;height:3.875rem;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.mbub .ic{width:2.125rem;height:2.125rem;stroke-width:1.7}
+.mtile .tt{margin-top:auto;padding-top:1rem}
+.mtile b{display:flex;align-items:center;gap:.25rem;white-space:nowrap;font-size:1.125rem}
+.mtile b .mt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mtile .chev{margin-left:auto;font-size:1.3125rem;font-weight:500;line-height:1;opacity:.85;transform:translateY(-.0625rem)}
+.mtile small{opacity:.88}
+
 /* ── 설정 버튼·창 (v1.6) ── */
 .setbtn{position:absolute;top:.875rem;right:.875rem;z-index:2;display:flex;flex-direction:column;align-items:center;gap:.125rem;
   color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:.875rem;padding:.4375rem .5rem .3125rem;
@@ -460,9 +475,11 @@ html[data-fs="l"] .brandbar{height:calc(3.2366rem + env(safe-area-inset-top));pa
 html[data-fs="l"] .brandapp{font-size:1.0324rem}
 html[data-fs="l"] .brandorg{font-size:.6975rem;gap:.3348rem}
 html[data-fs="l"] .govmark{width:1.1719rem;height:1.1719rem;flex-basis:1.1719rem}
-html[data-fs="l"] .mtile b{font-size:1.144rem}
-html[data-fs="l"] .hero h2{font-size:1.5625rem}
+html[data-fs="l"] .mtile b{font-size:1.0045rem}
+html[data-fs="l"] .hero h2{font-size:.9487rem}
 html[data-fs="l"] .visual{width:4.1295rem;height:4.1295rem}
+html[data-fs="l"] .mbub{width:3.46rem;height:3.46rem}
+html[data-fs="l"] .mbub .ic{width:1.8973rem;height:1.8973rem}
 html[data-fs="l"] .grid{padding:.8929rem .8929rem 0;gap:.8929rem}
 html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.2277rem}
 
@@ -494,8 +511,10 @@ html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.227
 @media (max-height:700px){
   .hero{padding-top:1.125rem;padding-bottom:1.25rem}
   .grid{padding-top:.75rem;gap:.75rem}
-  .mtile{min-height:11.5rem;padding-top:.75rem;padding-bottom:1rem}
+  .mtile{min-height:9.75rem;padding-top:.875rem;padding-bottom:.875rem}
   .visual{width:4rem;height:4rem}
+  .mbub{width:3.375rem;height:3.375rem}
+  .mbub .ic{width:1.875rem;height:1.875rem}
   .hlink{margin-top:.75rem}
   .inst{margin-top:.75rem}
   .stage{padding-top:1.25rem;padding-bottom:1.125rem}
@@ -503,8 +522,10 @@ html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.227
 }
 @media (max-height:600px){
   .hero p{display:none}
-  .mtile{min-height:10rem}
+  .mtile{min-height:9rem}
   .visual{width:3.5rem;height:3.5rem}
+  .mbub{width:3rem;height:3rem}
+  .mbub .ic{width:1.625rem;height:1.625rem}
   .band{padding-top:.25rem;padding-bottom:1rem}
   .band .bic{width:3.5rem;height:3.5rem;flex-basis:3.5rem}
 }
@@ -577,10 +598,10 @@ function newReport(){
 
 /* 메인 4개 메뉴 — 검토 반영 명칭 */
 var MAIN = {
-  situ:{t:'위기 상황 대응', s:'전화통화·대면방문·기타 상황', pic:'alert', th:'th-navy'},
-  help:{t:'직원 보호·지원', s:'법률 · 보험 · 심리 · 휴식', pic:'shield', th:'th-purple'},
-  law: {t:'관련 법적 근거', s:'위법행위별 조문과 형량', pic:'scale', th:'th-teal'},
-  case:{t:'참고 대응 사례', s:'판결로 확인된 4건', pic:'book', th:'th-brown'}
+  situ:{t:'위기 상황 대응', s:'전화통화·대면방문·기타 상황', pic:'alert', ico:'siren', th:'th-navy'},
+  help:{t:'직원 보호·지원', s:'법률 · 보험 · 심리 · 휴식', pic:'shield', ico:'shieldUser', th:'th-purple'},
+  law: {t:'관련 법적 근거', s:'위법행위별 조문과 형량', pic:'scale', ico:'docCheck', th:'th-teal'},
+  case:{t:'참고 대응 사례', s:'판결로 확인된 4건', pic:'book', ico:'bookOpen', th:'th-brown'}
 };
 var TABTH = {blue:'th-blue', orange:'th-orange', purple:'th-magenta'};
 function situTheme(s){
@@ -656,8 +677,8 @@ function pillRun(){
 function vHome(){
   function tile(id, m){
     return '<button class="mtile '+m.th+'" id="'+id+'">' +
-      visual(m.pic) +
-      '<span class="tt"><b>'+m.t+'</b><small>'+m.s+'</small></span></button>';
+      '<span class="mbub">'+ic(m.ico)+'</span>' +
+      '<span class="tt"><b><span class="mt">'+m.t+'</span><span class="chev" aria-hidden="true">\u203A</span></b><small>'+m.s+'</small></span></button>';
   }
   return '' +
   '<div class="brandbar">' +
@@ -666,8 +687,7 @@ function vHome(){
   '</div>' +
   '<div class="hero">' +
     '<button class="setbtn" id="m-set" aria-label="설정">'+ic('gear')+'<span>설정</span></button>' +
-    '<h2>지금 바로 실행하세요.</h2>' +
-    '<p>혼자 고민하지 않도록,<br>멘트부터 절차까지 앱이 챙겨드립니다.</p>' +
+    '<h2>특이민원 발생 시,<br><span class="hl">필요한 대응과 도움을 바로 확인하세요.</span></h2>' +
   '</div>' +
   '<div class="grid">' +
     tile('m-situ', MAIN.situ) + tile('m-help', MAIN.help) +
@@ -1100,6 +1120,9 @@ var ICON = {
   hand:'<path d="M7.5 12.5V7a1.5 1.5 0 0 1 3 0v4.5V5a1.5 1.5 0 0 1 3 0v6.5V6.5a1.5 1.5 0 0 1 3 0v5V9a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-7 7h-.5a6.5 6.5 0 0 1-5.4-2.9L4.2 14a1.5 1.5 0 0 1 2.4-1.8z"/>',
   eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   door:'<path d="M13.5 3.5h-7a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h7"/><path d="M10 12h11M17 8l4 4-4 4"/>',
+  shieldUser:'<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><circle cx="12" cy="10.2" r="2.3"/><path d="M8.2 16.4c.9-1.7 2.2-2.6 3.8-2.6s2.9.9 3.8 2.6"/>',
+  docCheck:'<path d="M14 3H6.5a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h5"/><path d="M14 3l4.5 4.5V12"/><path d="M14 3v4.5h4.5M9 11h6M9 14.5h3.5"/><circle cx="17" cy="17.5" r="3.6"/><path d="M15.4 17.6l1.1 1.1 2-2.1"/>',
+  bookOpen:'<path d="M12 6.5C10.3 5.2 7.8 4.5 4 4.5v13c3.8 0 6.3.7 8 2 1.7-1.3 4.2-2 8-2v-13c-3.8 0-6.3.7-8 2z"/><path d="M12 6.5v13"/><path d="M6.8 8.8c1.2.1 2.3.4 3.2.8M6.8 12c1.2.1 2.3.4 3.2.8M14 9.6c.9-.4 2-.7 3.2-.8M14 12.8c.9-.4 2-.7 3.2-.8"/>',
   shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
   scale:'<path d="M12 3.5v17M7.5 20.5h9M5 7h14"/><path d="M5 7l-2.8 6a2.8 2.8 0 0 0 5.6 0z"/><path d="M19 7l-2.8 6a2.8 2.8 0 0 0 5.6 0z"/>',
   book:'<path d="M4 5a2 2 0 0 1 2-2h14v15H6a2 2 0 0 0-2 2z"/><path d="M4 20a2 2 0 0 0 2 2h14v-4"/><path d="M8.5 7.5h7M8.5 11h5"/>',
@@ -1227,7 +1250,7 @@ var SITU = {
       act:['전화기 <b>기능버튼 ④</b>(상담중 안내 후 종료) 사용'],
       law:[9], rep:['반복 전화·면담'] },
 
-    { id:'p5', keys:[], pic:'deskphone', t:'전화기 기능버튼', s:'①~④ 무엇을 누르는지',
+    { id:'p5', keys:[], pic:'deskphone', t:'전화기 기능버튼', s:'상황별 버튼',
       say:[], act:[], law:[], rep:[] }
   ],
 
@@ -1340,13 +1363,15 @@ var LAW = [
 
   {id:3, t:'협박성 폭언', a:'해악을 고지하여 공포심을 유발',
    l:[{r:'형법 제283조제1항(협박)', p:'3년 이하 징역 · 500만원 이하 벌금 · 구류 또는 과료', pr:'bansa'},
-      {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'}],
-   n:'직무집행 중인 공무원에 대한 협박이면 공무집행방해죄가 함께 검토됩니다.'},
+      {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
+      {r:'형법 제144조제1항(특수공무방해)', p:'위험한 물건 휴대 또는 단체·다중의 위력을 보인 경우 제136조의 형에 2분의 1까지 가중(징역 상한 7년 6월)', pr:'none'}],
+   n:'직무집행 중인 공무원에 대한 협박이면 공무집행방해죄가 함께 검토됩니다. 흉기 등 위험한 물건을 휴대하고 협박하면 <b>특수공무방해</b>로 가중됩니다.'},
 
   {id:4, t:'폭행', a:'사람의 신체에 유형력을 행사',
    l:[{r:'형법 제260조제1항(폭행)', p:'2년 이하 징역 · 500만원 이하 벌금 · 구류 또는 과료', pr:'bansa'},
-      {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'}],
-   n:'서류를 던지는 행위도 폭행에 해당할 수 있습니다(실제 사례 1).'},
+      {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
+      {r:'형법 제144조제1항(특수공무방해)', p:'위험한 물건 휴대 또는 단체·다중의 위력을 보인 경우 제136조의 형에 2분의 1까지 가중(징역 상한 7년 6월)', pr:'none'}],
+   n:'서류를 던지는 행위도 폭행에 해당할 수 있습니다(실제 사례 1). 흉기 등 위험한 물건을 휴대하고 폭행하면 <b>특수공무방해</b>로 가중됩니다.'},
 
   {id:5, t:'성희롱 (전화)', a:'전화로 성적 수치심이나 혐오감을 유발',
    l:[{r:'성폭력처벌법 제13조(통신매체이용음란)', p:'2년 이하 징역 또는 2천만원 이하 벌금', pr:'none'}],
@@ -1354,25 +1379,30 @@ var LAW = [
 
   {id:6, t:'상해', a:'사람의 생리적 기능을 훼손',
    l:[{r:'형법 제257조제1항(상해)', p:'7년 이하 징역 · 10년 이하 자격정지 · 1천만원 이하 벌금', pr:'none'},
-      {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'}],
+      {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
+      {r:'형법 제144조제2항(특수공무방해치상)', p:'위험한 물건 휴대 등 특수공무방해로 공무원이 다친 경우 3년 이상 유기징역', pr:'none'}],
    n:'진단서를 반드시 확보해 두어야 합니다.'},
 
   {id:7, t:'기물파손', a:'공무소 서류나 물건 등을 손상',
    l:[{r:'형법 제141조제1항(공용서류등무효)', p:'7년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
       {r:'형법 제141조제2항(공용물파괴)', p:'1년 이상 10년 이하 징역', pr:'none'},
-      {r:'형법 제144조(특수공무방해)', p:'단체·다중의 위력 또는 위험한 물건 휴대 시 1/2까지 가중'}],
+      {r:'형법 제144조제1항(특수공무방해)', p:'단체·다중의 위력 또는 위험한 물건 휴대 시 2분의 1까지 가중', pr:'none'}],
    n:'파티션·집기 등 사무실 물건을 부순 경우도 <b>공용서류등무효죄</b>로 처리됩니다(실제 사례 2). 공용물파괴죄는 청사 건물 자체를 파괴한 경우입니다.'},
 
   {id:8, t:'업무방해', a:'허위사실 유포, 위계 또는 위력으로 업무를 방해',
    l:[{r:'형법 제314조제1항(업무방해)', p:'5년 이하 징역 또는 1,500만원 이하 벌금', pr:'none'},
       {r:'형법 제136조제1항(공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
+      {r:'형법 제137조(위계에 의한 공무집행방해)', p:'5년 이하 징역 또는 1천만원 이하 벌금', pr:'none'},
       {r:'경범죄 처벌법 제3조제2항제3호(업무방해)', p:'20만원 이하 벌금 · 구류 또는 과료', pr:'none'}],
-   n:'공무원의 직무는 원칙적으로 형법 제314조가 아닌 제136조로 다룹니다. 다만 <b>폭행·협박에 이르지 않는 위력</b>이면 제136조가 성립하지 않아 경범죄로 처리되는 경우가 많습니다(실제 사례 3).'},
+   n:'공무원의 직무는 형법 제314조(업무방해)의 대상이 아니므로(대법원 2009도4166 전원합의체), 폭행·협박이면 제136조, 위계면 <b>제137조</b>로 다룹니다. 담당자가 형법상 공무원이 아닌 경우(공무직 등)에는 제314조가 적용될 수 있습니다(대법원 2015도13448 등).<br><br>' +
+     '<b>폭행·협박에 이르지 않는 위력</b>이면 제136조가 성립하지 않아 경범죄로 처리되는 경우가 많습니다(실제 사례 3). 거짓 서류·진술을 낸 것만으로는 행정청이 심사로 걸러야 할 부분이라 제137조가 인정되지 않을 수 있습니다.'},
 
   {id:9, t:'반복 전화 · 문자', a:'정당한 이유 없이 반복적으로 전화·문자로 괴롭힘',
    l:[{r:'경범죄 처벌법 제3조제1항제40호(장난전화 등)', p:'10만원 이하 벌금 · 구류 또는 과료', pr:'none'},
-      {r:'경범죄 처벌법 제3조제2항제3호(업무방해)', p:'20만원 이하 벌금 · 구류 또는 과료', pr:'none'}],
-   n:'실제 처벌 사례는 제2항(업무방해)으로 벌금 20만원이 선고되었습니다(실제 사례 3).'},
+      {r:'경범죄 처벌법 제3조제2항제3호(업무방해)', p:'20만원 이하 벌금 · 구류 또는 과료', pr:'none'},
+      {r:'정보통신망법 제74조제1항제3호(공포심·불안감 유발)', p:'1년 이하 징역 또는 1천만원 이하 벌금', pr:'bansa'}],
+   n:'실제 처벌 사례는 경범죄 처벌법 제3조제2항(업무방해)으로 벌금 20만원이 선고되었습니다(실제 사례 3).<br><br>' +
+     '공포심·불안감을 일으키는 글·음향 등을 정보통신망으로 <b>반복해</b> 보낸 경우 정보통신망법이 적용될 수 있습니다. 내용·횟수·경위를 종합해 판단하므로(대법원 2013도7761 등) 한 번뿐인 연락은 해당하지 않을 수 있습니다. 문자·음성메시지는 지우지 말고 보관하세요.'},
 
   {id:10, t:'스토킹', a:'상대방 의사에 반해 지속·반복적으로 접근하거나 연락',
    l:[{r:'스토킹처벌법 제18조제1항', p:'3년 이하 징역 또는 3천만원 이하 벌금', pr:'none'},
@@ -1382,9 +1412,12 @@ var LAW = [
 
   {id:11, t:'온라인 비방 · 신상공개', a:'인터넷·SNS에 담당자 명예훼손 정보나 개인정보를 공개',
    l:[{r:'정보통신망법 제70조제1항(사실적시)', p:'3년 이하 징역 또는 3천만원 이하 벌금', pr:'bansa'},
-      {r:'정보통신망법 제70조제2항(허위사실)', p:'7년 이하 징역 · 10년 이하 자격정지 · 5천만원 이하 벌금', pr:'bansa'},
-      {r:'형법 제283조제1항(협박)', p:'3년 이하 징역 · 500만원 이하 벌금 · 구류 또는 과료', pr:'bansa'}],
-   n:'게시글은 삭제되기 전에 URL·작성일시가 보이도록 캡처해 두어야 합니다(실제 사례 4).'}
+      {r:'정보통신망법 제70조제2항(허위사실)', p:'7년 이하 징역 · 10년 이하 자격정지 · 7천만원 이하 벌금', pr:'bansa'},
+      {r:'형법 제283조제1항(협박)', p:'3년 이하 징역 · 500만원 이하 벌금 · 구류 또는 과료', pr:'bansa'},
+      {r:'스토킹처벌법 제18조제1항(개인정보 게시 · 제2조제1호바목)', p:'3년 이하 징역 또는 3천만원 이하 벌금', pr:'none'}],
+   n:'게시글은 삭제되기 전에 URL·작성일시가 보이도록 캡처해 두어야 합니다(실제 사례 4).<br><br>' +
+     '허위사실 명예훼손 벌금은 2026. 7. 7. 이후 행위부터 7천만원 이하입니다(이전 행위는 5천만원 이하).<br><br>' +
+     '담당자의 개인정보를 의사에 반해 온라인에 게시하는 행위는 2023. 7. 11.부터 스토킹행위에 포함됩니다. 다만 <b>지속적·반복적</b>으로 해서 불안감·공포심을 일으켜야 처벌 대상(스토킹범죄)이 됩니다.'}
 ];
 
 /* ── 실제 법적 대응 사례 ── */
@@ -1517,7 +1550,7 @@ function paperCard(){
     '<div class="row"><span class="l">피소 시</span><span class="r">공무원 책임보험 전 직원 가입 \u00B7 1건당 3천만원 \u00B7 사고접수 전 문의 1544-3025</span></div>' +
     '<div class="row"><span class="l">휴식\u00B7치유</span><span class="r">60분 이내 휴식, 병가, 트라우마 상담 연 8회, 진료비 최대 50만원</span></div>' +
 
-    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.6</div>' +
+    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.7 (법령 2026. 9. 기준)</div>' +
   '</div>';
 }
 
@@ -1567,7 +1600,7 @@ function paperFull(){
     '<div class="row"><span class="l">책임보험</span><span class="r">전 직원 가입 \u00B7 1건당 3천만원(특사경 4천만원), 연 4회 \u00B7 1544-3025</span></div>' +
     '<div class="row"><span class="l">휴식\u00B7심리</span><span class="r">60분 이내 휴식, 병가, 트라우마 상담 연 8회, 진료비 50만원, EAP 연 6회</span></div>' +
 
-    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.6</div>' +
+    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.7 (법령 2026. 9. 기준)</div>' +
   '</div>';
 }
 
