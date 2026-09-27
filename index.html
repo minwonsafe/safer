@@ -138,9 +138,6 @@ button{font-family:inherit;font-size:inherit;cursor:pointer;border:0;background:
 .say .q::before{content:"\201C"} .say .q::after{content:"\201D"}
 .say.warn{border-left:5px solid var(--amber);background:var(--amber-soft)}
 .say.end{border-left:5px solid var(--red);background:var(--red-soft)}
-.copy{margin-top:0.75rem;width:100%;border:1px solid var(--line);background:#fff;border-radius:0.6875rem;
-  padding:0.75rem;font-size:0.9375rem;font-weight:700;color:var(--tc)}
-.copy:active{background:#F2F5FA}
 
 .acts{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:0.375rem 1.0625rem}
 .acts div{font-size:1.03125rem;color:var(--ink-mid);padding:0.8125rem 0;border-bottom:1px solid #EEF0F4;display:flex;gap:0.625rem;line-height:1.55}
@@ -483,6 +480,32 @@ html[data-fs="l"] .mbub .ic{width:1.8973rem;height:1.8973rem}
 html[data-fs="l"] .grid{padding:.8929rem .8929rem 0;gap:.8929rem}
 html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.2277rem}
 
+/* ── 보고서 통화 기록 고르기 (v1.8) ── */
+.recpick{display:flex;flex-direction:column;gap:0.5rem}
+.rp{display:flex;align-items:center;gap:0.625rem;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:0.875rem;padding:0.75rem 0.875rem}
+.rp.on{border-color:var(--tc);background:var(--ts)}
+.rp .rk{flex:0 0 1.375rem;height:1.375rem;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:0.8125rem;font-weight:800;color:#fff}
+.rp.on .rk{background:var(--tc);border-color:var(--tc)}
+.rp .rt{flex:1;min-width:0}
+.rp .rt b{display:block;font-size:0.96875rem;font-weight:800;letter-spacing:-.02em}
+.rp .rt small{display:block;font-size:0.8125rem;color:var(--ink-soft);margin-top:0.0625rem}
+.rp .why{flex:0 0 auto;font-size:0.75rem;font-weight:800;border-radius:0.4375rem;padding:0.25rem 0.5rem;white-space:nowrap}
+
+/* ── 발생 경위 저장 (v1.8) ── */
+.savebox{margin-top:0.75rem}
+.save2{display:flex;gap:0.5rem}
+.save2 .btn{flex:1;padding:1rem 0.5rem;font-size:1.03125rem}
+.savenote{margin:0 0 0.5rem;font-size:0.8125rem;color:var(--ink-soft);line-height:1.6;text-align:center}
+.savenote.use{margin-top:0.25rem;color:var(--ink-mid)}
+.savenote.use b{color:var(--ink)}
+.savenote.warn{background:var(--amber-soft);color:var(--ink-mid);border-radius:0.75rem;padding:0.625rem 0.75rem;text-align:left}
+.linkbtn{display:block;margin:0 auto 0.875rem;padding:0.5rem 0.875rem;font-size:0.90625rem;font-weight:700;color:var(--ink-soft);
+  text-decoration:underline;text-underline-offset:3px}
+.imgv .sh-box{max-height:92vh;display:flex;flex-direction:column;padding-top:1rem}
+.imgv .sh-d{margin:0 0 0.625rem}
+.imgwrap{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:0.75rem;background:#fff;-webkit-overflow-scrolling:touch}
+.imgwrap img{display:block;width:100%;height:auto;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
+
 /* ── 조치 사항 아이콘 (v1.5) ── */
 .acts div.ia{align-items:center;gap:.75rem}
 .acts div.ia::before{display:none}
@@ -561,7 +584,7 @@ html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.227
 <div class="toast" id="toast"></div>
 <script>
 /* ══════════════════════════════════════════
-   민원세이프 (특이민원 원터치 대응) — v1.6 · https://minwonsafe.github.io/safer/
+   민원세이프 (특이민원 원터치 대응) — v1.8 · https://minwonsafe.github.io/safer/
    구조: 제안서 V4(2026.9.13.) · '26.9.17 시안 검토 반영
    근거: 고용노동부 「특이민원 예방 및 대응요령」(2025. 8.)
    ══════════════════════════════════════════ */
@@ -592,7 +615,7 @@ var S = {
 var R = null;
 function newReport(){
   S.maxStep=1;
-  return { when:'', dur:'', place:'', route:'', acts:[], task:'', words:'',
+  return { when:'', dur:'', place:'', route:'', rec:null, acts:[], task:'', words:'',
            q1:'', q2:'', q3:'', ev:[], witness:'', steps:[], want:[] };
 }
 
@@ -610,7 +633,7 @@ function situTheme(s){
   return 'th-navy';
 }
 
-function go(view, arg){ closeSheet(); S.view=view; S.arg=(arg===undefined?null:arg); render(); window.scrollTo(0,0); }
+function go(view, arg){ closeSheet(); S.view=view; S.arg=(arg===undefined?null:arg); render(); window.scrollTo(0,0); if(view!=='home') navPush(); }
 
 /* ══════════ 렌더 ══════════ */
 function render(){
@@ -777,8 +800,7 @@ function vSituD(id){
   var b1 = s.say.length ? blk('1','고지 사항',
     s.say.map(function(y){
       return '<div class="say '+y.k+'"><div class="cap">'+y.c+'</div>' +
-        '<div class="q">'+esc(y.x)+'</div>' +
-        '<button class="copy" data-copy="'+esc(y.x)+'">멘트 복사</button></div>';
+        '<div class="q">'+esc(y.x)+'</div></div>';
     }).join('') + (s.timer ? '<button class="btn btn-main" id="s-timer" style="margin-top:0.125rem">통화 타이머 열기</button>' : '')
   ) : '';
 
@@ -848,7 +870,6 @@ function vLawD(n){
         return '<div class="pen"><div class="ref">'+x.r+'</div><div class="amt">'+x.p+'</div>'+prBadge(x.pr)+'</div>';
       }).join('') +
       (L.n ? '<div class="note" style="margin-top:0.875rem"><b>유의사항</b><br>'+L.n+'</div>' : '') +
-      '<button class="copy" data-copy="'+esc(L.t+' — '+L.l.map(function(x){return x.r+' ('+x.p+')';}).join(' / '))+'">조문·형량 복사</button>' +
     '</div>';
 }
 
@@ -874,24 +895,31 @@ function repDirty(){
 }
 /* 하단 선택 시트 — #app 밖에 붙여 다시 그리기에 영향받지 않음 */
 function showSheet(title, desc, btns){
-  closeSheet();
+  var had=!!$('sheet'); closeSheet();
   var el=document.createElement('div'); el.id='sheet'; el.className='sheet';
   el.innerHTML='<div class="sh-back" data-sh="x"></div><div class="sh-box" role="dialog" aria-modal="true">' +
     '<b class="sh-t">'+title+'</b>'+(desc?'<p class="sh-d">'+desc+'</p>':'') +
     btns.map(function(b,i){ return '<button class="btn '+(b.cls||'btn-line')+'" data-sh="'+i+'">'+b.t+'</button>'; }).join('') +
     '</div>';
   document.body.appendChild(el);
+  if(!had) navPush(true);
   each('#sheet [data-sh]', function(n){ n.onclick=function(){
-    var k=n.getAttribute('data-sh'); closeSheet(); if(k!=='x' && btns[+k].fn) btns[+k].fn();
+    var k=n.getAttribute('data-sh'), b=(k!=='x')?btns[+k]:null;
+    closeSheet(!(b && b.fn)); if(b && b.fn) b.fn();
   }; });
 }
-function closeSheet(){ var o=$('sheet'); if(o) o.parentNode.removeChild(o); }
+/* ui===true: 사용자가 ×·바깥을 눌러 닫음 → 시트를 열 때 쌓은 기록 한 칸을 되돌림 */
+function closeSheet(ui){
+  var o=$('sheet'); if(!o) return;
+  o.parentNode.removeChild(o);
+  if(ui===true){ try{ if(history.state && history.state.sheet){ NAV.skip++; history.back(); } }catch(e){} }
+}
 
 /* ── 설정 (v1.6) — 글자 크기 · 내 전화기 · 홈 화면 설치 ── */
 function applyFs(){ try{ document.documentElement.setAttribute('data-fs', store.get('sm_fs')==='l' ? 'l' : 'n'); }catch(e){} }
 applyFs();
 function openSettings(){
-  closeSheet();
+  var had=!!$('sheet'); closeSheet();
   var fs=store.get('sm_fs')==='l'?'l':'n';
   function seg(key, cur, opts){
     return '<div class="seg">'+opts.map(function(o){ return '<button data-'+key+'="'+o[0]+'" class="'+(o[0]===cur?'on':'')+'">'+o[1]+'</button>'; }).join('')+'</div>';
@@ -909,7 +937,8 @@ function openSettings(){
     '<div class="set-row col"><div class="set-l"><b>홈 화면 설치</b><small>앱처럼 바로 실행하고, 인터넷이 없어도 열립니다</small></div>'+inst+'</div>' +
     '</div>';
   document.body.appendChild(el);
-  each('#sheet [data-sx]', function(n){ n.onclick=closeSheet; });
+  if(!had) navPush(true);
+  each('#sheet [data-sx]', function(n){ n.onclick=function(){ closeSheet(true); }; });
   each('#sheet [data-fs]', function(n){ n.onclick=function(){
     store.set('sm_fs', n.getAttribute('data-fs')); applyFs(); var y=scrollY; render(); scrollTo(0,y); openSettings();
     toast(n.getAttribute('data-fs')==='l'?'글자를 크게 했습니다':'글자를 보통으로 했습니다'); }; });
@@ -919,21 +948,51 @@ function openSettings(){
     var done=function(){ INST.ev=null; if(S.view==='home') render(); }; if(e.userChoice&&e.userChoice.then) e.userChoice.then(done,done); else done(); };
 }
 
+/* ══════════ v1.8 뒤로 가기 — 안드로이드 뒤로 버튼·제스처, 아이폰 밀어서 뒤로 ══════════
+   화면을 옮길 때마다 방문 기록을 한 칸씩 쌓아, 뒤로 버튼이 앱을 닫지 않고 화면 왼쪽 위 ‹ 버튼과 똑같이 한 단계씩 돌아가게 함.
+   첫 화면에서 누르면 원래대로 앱이 닫힘.
+   기록은 사용자가 누른 순간에만 쌓음 — 누르지 않았는데 쌓인 기록은 크롬이 뒤로 버튼에서 건너뛰어 앱이 닫혀 버림 */
+var NAV={depth:0, busy:false, skip:0};
+function navPush(sheet){
+  if(NAV.busy) return;
+  try{ history.pushState({safer:NAV.depth+1, sheet:!!sheet}, ''); NAV.depth++; }catch(e){}
+}
+function navBack(){ if(NAV.depth>0) history.back(); else runBack(); }   // ‹ 버튼·이전 버튼
+function runBack(){
+  NAV.busy=true;
+  try{ doBack(); } finally { NAV.busy=false; }
+  // 첫 화면에 돌아왔는데 기록이 남아 있으면 한꺼번에 정리 → 다음 뒤로 버튼에서 바로 닫힘
+  if(S.view==='home' && NAV.depth>0){ var d=NAV.depth; NAV.depth=0; NAV.skip++; history.go(-d); }
+}
+function doBack(){
+  var v=S.view;
+  if(v==='recs'){ go('timer'); return; }
+  if(v==='situD'){ go('situ'); return; }
+  if(v==='lawD'){ if(S.from==='situD'){ S.from=null; go('situD', S.lastSitu); } else go('law'); return; }
+  if(v==='timer' && S.lastSitu){ go('situD', S.lastSitu); return; }
+  if(v==='report' && S.step>1 && S.step<=6){ saveStep(); S.step--; render(); window.scrollTo(0,0); return; }
+  if(v==='report' && S.step>6){ S.step=6; render(); window.scrollTo(0,0); return; }
+  if(v==='report'){ saveStep(); if(S.lastSitu){ go('situD', S.lastSitu); return; } }
+  go('home');
+}
+window.addEventListener('popstate', function(e){
+  NAV.depth=(e && e.state && e.state.safer) || 0;
+  if(NAV.skip>0){ NAV.skip--; return; }
+  if($('sheet')){ closeSheet(); return; }   // 열린 창이 있으면 창만 닫음
+  if(S.view==='home') return;
+  runBack();
+});
+// 기록이 바닥나 다음 뒤로 버튼에 앱이 닫힐 상황이면, 화면을 누르는 순간 한 칸 채워 둠
+document.addEventListener('click', function(){ if(S.view!=='home' && NAV.depth===0) navPush(); }, true);
+// 새로고침 뒤 남은 예전 기록 표시 지움
+try{ if(window.history && history.state && history.state.safer) history.replaceState(null, ''); }catch(e){}
+
 /* ══════════ 이벤트 ══════════ */
 function bind(){
   var v=S.view;
 
   var b=$('back');
-  if(b) b.onclick=function(){
-    if(v==='recs'){ go('timer'); return; }
-    if(v==='situD'){ go('situ'); return; }
-    if(v==='lawD'){ if(S.from==='situD'){ S.from=null; go('situD', S.lastSitu); } else go('law'); return; }
-    if(v==='timer' && S.lastSitu){ go('situD', S.lastSitu); return; }
-    if(v==='report' && S.step>1 && S.step<=6){ saveStep(); S.step--; render(); window.scrollTo(0,0); return; }
-    if(v==='report' && S.step>6){ S.step=6; render(); window.scrollTo(0,0); return; }
-    if(v==='report'){ saveStep(); if(S.lastSitu){ go('situD', S.lastSitu); return; } }
-    go('home');
-  };
+  if(b) b.onclick=navBack;
 
   var m;
   if((m=$('m-situ')))  m.onclick=function(){ go('situ'); };
@@ -948,7 +1007,6 @@ function bind(){
   each('[data-htab]', function(el){ el.onclick=function(){ S.tab2=el.getAttribute('data-htab'); render(); window.scrollTo(0,0); }; });
   each('[data-situ]', function(el){ el.onclick=function(){ S.lastSitu=el.getAttribute('data-situ'); S.kact=null; S.hiKey=null; go('situD', S.lastSitu); }; });
   each('[data-law]',  function(el){ el.onclick=function(){ S.from=S.view; go('lawD', +el.getAttribute('data-law')); }; });
-  each('[data-copy]', function(el){ el.onclick=function(){ copyText(el.getAttribute('data-copy')); }; });
 
   // 전화기 색상 전환 — 선택을 기억
   each('[data-ph]', function(el){ el.onclick=function(){
@@ -977,7 +1035,7 @@ function bind(){
         else if(SITU.visit.indexOf(s)>=0) R.route='대면';
         else R.route='온라인·문자';
         var r=getRecs()[0];
-        if(r && R.route==='전화'){ R.when=toLocalInput(r.start); R.dur=durText(r.dur); }
+        if(r && R.route==='전화'){ R.when=toLocalInput(r.start); R.dur=durText(r.dur); R.rec=r.start; }   // 최근 통화를 우선 채우고, 1단계 목록에서 바꿀 수 있음
       }
       S.step=1; go('report'); toast('상황 정보를 옮겼습니다');
     }
@@ -1167,21 +1225,6 @@ function durText(ms){
 function toast(msg){
   var el=$('toast'); el.textContent=msg; el.className='toast on';
   clearTimeout(toast._t); toast._t=setTimeout(function(){ el.className='toast'; },1900);
-}
-function copyText(t){
-  if(navigator.clipboard && window.isSecureContext){
-    navigator.clipboard.writeText(t).then(function(){ toast('복사했습니다'); },function(){ fallbackCopy(t); });
-  } else { fallbackCopy(t); }
-}
-function fallbackCopy(t){
-  try{
-    var ta=document.createElement('textarea');
-    ta.value=t; ta.setAttribute('readonly','');
-    ta.style.position='fixed'; ta.style.top='-9999px';
-    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,ta.value.length);
-    document.execCommand('copy'); document.body.removeChild(ta);
-    toast('복사했습니다');
-  }catch(e){ toast('복사할 수 없습니다'); }
 }
 
 /* ── 기록 ── */
@@ -1550,7 +1593,7 @@ function paperCard(){
     '<div class="row"><span class="l">피소 시</span><span class="r">공무원 책임보험 전 직원 가입 \u00B7 1건당 3천만원 \u00B7 사고접수 전 문의 1544-3025</span></div>' +
     '<div class="row"><span class="l">휴식\u00B7치유</span><span class="r">60분 이내 휴식, 병가, 트라우마 상담 연 8회, 진료비 최대 50만원</span></div>' +
 
-    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.7 (법령 2026. 9. 기준)</div>' +
+    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.8 (법령 2026. 9. 기준)</div>' +
   '</div>';
 }
 
@@ -1600,7 +1643,7 @@ function paperFull(){
     '<div class="row"><span class="l">책임보험</span><span class="r">전 직원 가입 \u00B7 1건당 3천만원(특사경 4천만원), 연 4회 \u00B7 1544-3025</span></div>' +
     '<div class="row"><span class="l">휴식\u00B7심리</span><span class="r">60분 이내 휴식, 병가, 트라우마 상담 연 8회, 진료비 50만원, EAP 연 6회</span></div>' +
 
-    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.7 (법령 2026. 9. 기준)</div>' +
+    '<div class="pfoot">근거자료 「특이민원 예방 및 대응요령」(2025. 8., 고용노동부 민원운영팀) \u00B7 v1.8 (법령 2026. 9. 기준)</div>' +
   '</div>';
 }
 
@@ -1663,8 +1706,7 @@ function vTimer(){
 }
 function sayCard(kind,cap,text){
   return '<div class="say '+kind+'"><div class="cap">'+cap+'</div>' +
-    '<div class="q">'+esc(text)+'</div>' +
-    '<button class="copy" data-copy="'+esc(text)+'">문구 복사</button></div>';
+    '<div class="q">'+esc(text)+'</div></div>';
 }
 function keepRow(){
   if(!wakeSupported()){
@@ -1712,8 +1754,7 @@ function vRecs(){
       body += '<div class="rec">' +
         '<div class="top"><span class="dur">'+durText(r.dur)+'</span>' +
         '<span class="why '+cls+'">'+txt+'</span></div>' +
-        '<div class="when">'+ymd(r.start)+' '+hhmm(r.start)+' ~ '+hhmm(r.end)+'</div>' +
-        '<button class="copy" data-copy="'+esc(recLine(r))+'">기록 복사</button></div>';
+        '<div class="when">'+ymd(r.start)+' '+hhmm(r.start)+' ~ '+hhmm(r.end)+'</div></div>';
     }
   }
   return '<div class="topbar"><button class="back" id="back">‹</button><h1>지난 통화 기록</h1></div>' +
@@ -1721,11 +1762,6 @@ function vRecs(){
       '<div class="note">기록은 이 기기에만 저장됩니다. 서버로 전송되지 않습니다.</div>' +
       body +
     '</div>';
-}
-function recLine(r){
-  var why = r.why==='abuse' ? '폭언 발생으로 종료' : (r.why==='time' ? '권장시간 20분 경과로 종결' : '통화 종료');
-  return '○ 통화일시: '+ymd(r.start)+' '+hhmm(r.start)+' ~ '+hhmm(r.end)+
-         ' (총 '+durText(r.dur)+')\n○ 종료사유: '+why;
 }
 
 /* ══════════ 발생보고서 ══════════ */
@@ -1773,7 +1809,13 @@ function vReport(){
   if(S.step===1){
     var recs=getRecs();
     body =
-      (recs.length ? '<button class="btn btn-line" id="loadrec" style="margin-bottom:1rem">방금 통화 기록 불러오기 ('+durText(recs[0].dur)+')</button>' : '') +
+      (recs.length ? fld('통화 기록에서 가져오기','보고할 통화를 고르면 일시·통화 시간이 채워집니다'+(recs.length>5?' (최근 5건)':''),
+        '<div class="recpick">'+recs.slice(0,5).map(function(r){
+          var on=(R.rec===r.start), w=r.why==='abuse'?['why-abuse','폭언']:(r.why==='time'?['why-time','20분 경과']:['why-norm','정상 종료']);
+          return '<button class="rp'+(on?' on':'')+'" data-rec="'+r.start+'"><span class="rk">'+(on?'\u2713':'')+'</span>' +
+            '<span class="rt"><b>'+ymd(r.start)+' '+hhmm(r.start)+' ~ '+hhmm(r.end)+'</b><small>'+durText(r.dur)+'</small></span>' +
+            '<span class="why '+w[0]+'">'+w[1]+'</span></button>';
+        }).join('')+'</div>') : '') +
       fld('발생 일시','', '<input type="datetime-local" id="f-when" value="'+esc(R.when)+'">') +
       fld('발생 장소','예: 대구고용노동청 ○○과 상담실',
           '<input type="text" id="f-place" value="'+esc(R.place)+'" placeholder="장소를 입력하세요">') +
@@ -1923,13 +1965,183 @@ function vReportOut(){
       '<div class="src">이 표는 사실관계 정리용입니다. 죄가 되는지는 수사기관과 법률자문이 판단합니다.</div>' +
     '</div>' +
     '<div class="out" id="outtext">'+esc(txt)+'</div>' +
-    '<button class="btn btn-main" id="copyout" style="margin-top:0.75rem">전체 복사</button>' +
+    '<div class="savebox">' +
+      '<div class="save2"><button class="btn btn-main" id="sv-img">이미지로 저장</button>' +
+      '<button class="btn btn-main" id="sv-pdf">PDF로 저장</button></div>' +
+      '<p class="savenote use">관리부서(고용관리과·지역협력과) <b>특이민원 담당자</b>에게 경위를 알릴 때 저장한 파일을 카톡·메일에 첨부하세요.</p>' +
+      (inApp() ? '<p class="savenote warn">카카오톡 등 앱 안에서 열려 있어 저장이 제한될 수 있습니다. 안 되면 오른쪽 위·아래 메뉴에서 <b>다른 브라우저로 열기</b>를 눌러 주세요.</p>' : '') +
+      '<p class="savenote">민원인 개인정보가 들어 있을 수 있습니다. 업무용 기기·내부 채널로만 전달하세요.</p>' +
+    '</div>' +
     next +
     '<button class="btn btn-line" id="editout">내용 수정하기</button>' +
     '<button class="btn btn-line" id="clearout">지우고 새로 작성</button>' +
   '</div>';
 }
 
+/* ══════════ v1.8 발생 경위 정리 — 이미지·PDF로 휴대폰에 저장 ══════════
+   외부 라이브러리·서버 없이 기기 안에서 A4 비율 그림을 그려 파일로 만듦 (인터넷 끊겨도 동작).
+   글자는 휴대폰 기본 한글 글꼴로 그리므로 PDF 안의 글자는 선택·검색되지 않음(그림 PDF).
+   저장 방식 — 안드로이드 브라우저·설치 앱: 바로 다운로드 / 아이폰: 공유 창(이미지 저장·파일에 저장·카톡)
+             카카오톡 등 앱 안 브라우저: 이미지를 띄워 길게 눌러 저장 */
+var EXP={W:1240, H:1754, M:110, FS:24, LH:42};   // A4 150dpi 기준 크기(실제 그림은 1.5배로 선명하게)
+function inApp(){ return /KAKAOTALK|NAVER\(|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent||''); }
+function expFont(w,px){ return w+' '+px+'px -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif'; }
+function expStamp(){ var d=new Date(); return d.getFullYear()+'. '+(d.getMonth()+1)+'. '+d.getDate()+'. '+pad(d.getHours())+':'+pad(d.getMinutes()); }
+function expName(ext){
+  var d=(R && R.when) ? new Date(R.when) : new Date(); if(isNaN(d.getTime())) d=new Date();
+  return '특이민원_발생경위_'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+'.'+ext;
+}
+function expFS(k){ return k==='title'?36 : (k==='note'?EXP.FS-3 : EXP.FS); }
+function expH(k){ return k==='title'?EXP.LH*2.1 : (k==='gap'?EXP.LH*0.55 : (k==='note'?EXP.LH*0.92 : EXP.LH)); }
+/* 줄 나누기 — 띄어쓰기에서 끊고, 둘째 줄부터는 ○·- 뒤에 맞춰 들여씀 */
+function expLines(ctx){
+  var src=buildReport().split('\n'), out=[], maxW=EXP.W-EXP.M*2;
+  for(var i=0;i<src.length;i++){
+    var line=src[i];
+    if(i===0){ out.push({t:line.trim(), k:'title'}); continue; }
+    if(!line.trim()){ out.push({t:'', k:'gap'}); continue; }
+    var k=/^\d\. /.test(line) ? 'head' : (/^\s*※/.test(line) ? 'note' : 'body');
+    ctx.font=expFont(k==='head'?'700':'400', expFS(k));
+    var pre=(line.match(/^\s*(?:○|-|※)?\s*/)||[''])[0], ind=ctx.measureText(pre).width, rest=line, first=true;
+    while(rest.length){
+      var avail=maxW-(first?0:ind);
+      if(ctx.measureText(rest).width<=avail){ out.push({t:rest, k:k, x:first?0:ind}); break; }
+      var lo=1, hi=rest.length;
+      while(lo<hi){ var mid=(lo+hi+1)>>1; if(ctx.measureText(rest.slice(0,mid)).width<=avail) lo=mid; else hi=mid-1; }
+      var cut=lo, sp=rest.lastIndexOf(' ', cut);
+      if(sp>(first?pre.length:0) && sp>cut*0.55) cut=sp;
+      out.push({t:rest.slice(0,cut), k:k, x:first?0:ind});
+      rest=rest.slice(cut).replace(/^\s+/,''); first=false;
+    }
+  }
+  return out;
+}
+function expCanvas(w,h,sc){
+  var c=document.createElement('canvas'); c.width=Math.round(w*sc); c.height=Math.round(h*sc);
+  var x=c.getContext('2d'); x.scale(sc,sc); x.fillStyle='#fff'; x.fillRect(0,0,w,h); return {c:c, x:x};
+}
+function expPaint(x, items, y0, pageNo, pages, h){
+  var y=y0;
+  items.forEach(function(it){
+    var hh=expH(it.k);
+    if(it.k!=='gap'){
+      var fs=expFS(it.k);
+      x.font=expFont((it.k==='title'||it.k==='head')?'700':'400', fs);
+      x.fillStyle=it.k==='note' ? '#586070' : '#14171C';
+      var base=y+hh/2+fs*0.36;
+      if(it.k==='title'){
+        x.textAlign='center'; x.fillText(it.t, EXP.W/2, base-EXP.LH*0.25); x.textAlign='left';
+        x.fillStyle='#12315C'; x.fillRect(EXP.M, y+hh-EXP.LH*0.35, EXP.W-EXP.M*2, 3);
+      } else x.fillText(it.t, EXP.M+(it.x||0), base);
+    }
+    y+=hh;
+  });
+  x.font=expFont('400',17); x.fillStyle='#8A93A3';
+  x.fillText('민원세이프 · '+expStamp()+' 저장', EXP.M, h-EXP.M*0.5);
+  if(pages>1){ x.textAlign='right'; x.fillText(pageNo+' / '+pages, EXP.W-EXP.M, h-EXP.M*0.5); x.textAlign='left'; }
+}
+function durlBytes(u){ var b=atob(u.split(',')[1]), a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+/* 긴 그림 한 장(PNG) — 휴대폰 사진첩에서 보기 편하게 쪽 나눔 없이 */
+function expPng(){
+  var probe=expCanvas(10,10,1), items=expLines(probe.x), h=EXP.M*2+EXP.M*0.4;
+  items.forEach(function(it){ h+=expH(it.k); });
+  h=Math.max(Math.ceil(h), 900);
+  var sc=Math.min(1.5, Math.sqrt(15e6/(EXP.W*h)));   // 아이폰 그림 크기 한도(약 1,600만 화소) 안으로
+  var cv=expCanvas(EXP.W, h, sc); expPaint(cv.x, items, EXP.M, 1, 1, h);
+  var url=cv.c.toDataURL('image/png');
+  return {url:url, bytes:durlBytes(url)};
+}
+/* A4 PDF — 쪽마다 그림 한 장(JPEG)을 붙인 가장 단순한 PDF를 직접 조립 */
+function expPdf(){
+  var probe=expCanvas(10,10,1), items=expLines(probe.x), pages=[], cur=[], used=0, room=EXP.H-EXP.M*2-EXP.M*0.4;
+  items.forEach(function(it){
+    var hh=expH(it.k), need=hh+(it.k==='head'?EXP.LH*2:0);   // 제목이 쪽 끝에 홀로 남지 않게 아래 두 줄과 함께
+    if(used+need>room && cur.length){ pages.push(cur); cur=[]; used=0; if(it.k==='gap') return; }
+    cur.push(it); used+=hh;
+  });
+  if(cur.length) pages.push(cur);
+  var imgs=pages.map(function(pg,i){
+    var cv=expCanvas(EXP.W, EXP.H, 1.5); expPaint(cv.x, pg, EXP.M, i+1, pages.length, EXP.H);
+    return {jpg:durlBytes(cv.c.toDataURL('image/jpeg',0.9)), w:cv.c.width, h:cv.c.height};
+  });
+  return pdfBytes(imgs);
+}
+function pdfBytes(imgs){
+  var parts=[], off=[], len=0, PW='595.28', PH='841.89', n=imgs.length;
+  function add(x){
+    var u=x;
+    if(typeof x==='string'){ u=new Uint8Array(x.length); for(var i=0;i<x.length;i++) u[i]=x.charCodeAt(i)&255; }
+    parts.push(u); len+=u.length;
+  }
+  function obj(id, body){ off[id]=len; add(id+' 0 obj\n'+body+'\nendobj\n'); }
+  add('%PDF-1.4\n%\u00E2\u00E3\u00CF\u00D3\n');
+  obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  var kids=[]; for(var i=0;i<n;i++) kids.push((3+3*i)+' 0 R');
+  obj(2, '<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+n+' >>');
+  imgs.forEach(function(p,i){
+    var pid=3+3*i, cid=4+3*i, iid=5+3*i, cs='q '+PW+' 0 0 '+PH+' 0 0 cm /Im0 Do Q';
+    obj(pid, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW+' '+PH+'] /Resources << /XObject << /Im0 '+iid+' 0 R >> >> /Contents '+cid+' 0 R >>');
+    obj(cid, '<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
+    off[iid]=len;
+    add(iid+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+p.w+' /Height '+p.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+p.jpg.length+' >>\nstream\n');
+    add(p.jpg); add('\nendstream\nendobj\n');
+  });
+  var total=3+3*n, xref=len, t='xref\n0 '+total+'\n0000000000 65535 f \n';
+  for(var k=1;k<total;k++) t+=('0000000000'+off[k]).slice(-10)+' 00000 n \n';
+  add(t+'trailer\n<< /Size '+total+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
+  var out=new Uint8Array(len), o=0; parts.forEach(function(u){ out.set(u,o); o+=u.length; });
+  return out;
+}
+/* 파일 전달 */
+function expRun(fn){ saveStep(); try{ fn(); }catch(e){ toast('파일을 만들지 못했습니다. 다시 눌러 주세요'); } }
+function fileOf(bytes,type,name){ try{ return new File([bytes], name, {type:type}); }catch(e){ return null; } }
+function canShareFile(f){ try{ return !!(f && navigator.share && navigator.canShare && navigator.canShare({files:[f]})); }catch(e){ return false; } }
+function shareFile(f, fallback){
+  navigator.share({files:[f], title:'특이민원 발생 경위 정리'}).then(function(){}, function(err){
+    if(err && err.name==='AbortError') return;   // 사용자가 공유 창을 닫음
+    if(fallback) fallback();
+  });
+}
+function downloadBytes(bytes,type,name){
+  var url=URL.createObjectURL(new Blob([bytes], {type:type}));
+  var a=document.createElement('a'); a.href=url; a.download=name; a.rel='noopener';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+}
+function showImg(url){
+  var had=!!$('sheet'); closeSheet();
+  var el=document.createElement('div'); el.id='sheet'; el.className='sheet imgv';
+  el.innerHTML='<div class="sh-back" data-sx="1"></div><div class="sh-box" role="dialog" aria-modal="true" aria-label="이미지 저장">' +
+    '<div class="set-h"><b>이미지를 길게 눌러 저장</b><button class="ix" data-sx="1" aria-label="닫기">\u00D7</button></div>' +
+    '<p class="sh-d">사진 앱(갤러리)에 저장됩니다.</p>' +
+    '<div class="imgwrap"><img src="'+url+'" alt="특이민원 발생 경위 정리"></div></div>';
+  document.body.appendChild(el);
+  if(!had) navPush(true);
+  each('#sheet [data-sx]', function(n){ n.onclick=function(){ closeSheet(true); }; });
+}
+function saveImg(){
+  var r=expPng(), name=expName('png'), f=fileOf(r.bytes,'image/png',name);
+  if(inApp()){ showImg(r.url); return; }
+  if(isIOS()){ if(canShareFile(f)) shareFile(f, function(){ showImg(r.url); }); else showImg(r.url); return; }
+  downloadBytes(r.bytes,'image/png',name); toast('저장했습니다 · 갤러리 또는 내 파일 › 다운로드');
+}
+function savePdf(){
+  var b=expPdf(), name=expName('pdf'), f=fileOf(b,'application/pdf',name);
+  if(isIOS() || inApp()){
+    if(canShareFile(f)){ shareFile(f, function(){ pdfFallback(b,name); }); return; }
+    pdfFallback(b,name); return;
+  }
+  downloadBytes(b,'application/pdf',name); toast('저장했습니다 · 내 파일 › 다운로드');
+}
+function pdfFallback(b,name){
+  if(inApp()){
+    showSheet('여기서는 PDF를 저장할 수 없습니다',
+      '카카오톡 등 앱 안에서 열려 있습니다. 메뉴에서 <b>다른 브라우저로 열기</b>를 누른 뒤 저장하거나, 이미지로 저장해 주세요.',
+      [{t:'이미지로 저장', cls:'btn-main', fn:function(){ expRun(saveImg); }}, {t:'닫기', cls:'btn-line'}]);
+    return;
+  }
+  downloadBytes(b,'application/pdf',name);
+}
 /* ── 보고서 입력 저장 ── */
 function saveStep(){
   function v(id){ var e=$(id); return e ? e.value : null; }
@@ -1979,19 +2191,21 @@ function bindReport(){
     })(qs[n]);
   }
 
-  var lr=$('loadrec');
-  if(lr) lr.onclick=function(){
-    var r=getRecs()[0]; if(!r) return;
-    R.when=toLocalInput(r.start); R.dur=durText(r.dur); R.route='전화';
-    render(); toast('통화 기록을 불러왔습니다');
-  };
+  each('[data-rec]', function(el){ el.onclick=function(){
+    var st=+el.getAttribute('data-rec'), list=getRecs(), r=null;
+    for(var i=0;i<list.length;i++) if(list[i].start===st){ r=list[i]; break; }
+    if(!r || R.rec===st) return;
+    saveStep(); R.when=toLocalInput(r.start); R.dur=durText(r.dur); R.route='전화'; R.rec=st;
+    var y=window.scrollY; render(); window.scrollTo(0,y); toast('이 통화로 채웠습니다');
+  }; });
 
   var nx=$('next');
-  if(nx) nx.onclick=function(){ saveStep(); S.step++; render(); window.scrollTo(0,0); };
+  if(nx) nx.onclick=function(){ saveStep(); S.step++; render(); window.scrollTo(0,0); navPush(); };
   var pv=$('prev');
-  if(pv) pv.onclick=function(){ saveStep(); S.step--; render(); window.scrollTo(0,0); };
+  if(pv) pv.onclick=navBack;
 
-  var co=$('copyout'); if(co) co.onclick=function(){ copyText(buildReport()); };
+  var si=$('sv-img'); if(si) si.onclick=function(){ expRun(saveImg); };
+  var sd=$('sv-pdf'); if(sd) sd.onclick=function(){ expRun(savePdf); };
   var eo=$('editout'); if(eo) eo.onclick=function(){ S.step=1; render(); window.scrollTo(0,0); };
   var cl=$('clearout');
   if(cl) cl.onclick=function(){ R=newReport(); S.step=1; render(); toast('작성 내용을 지웠습니다'); };
@@ -2024,7 +2238,7 @@ window.addEventListener('appinstalled', function(){ INST.ev=null; toast('홈 화
 
 /* 자동 업데이트 — GitHub에 새 index.html을 올리면 반영. 통화 타이머·보고서 작성 중에는 절대 새로고침하지 않음 */
 var UPD={pending:false, reg:null, last:0};
-function idle(){ return !S.startAt && !repDirty() && S.view!=='report'; }
+function idle(){ return !S.startAt && !repDirty() && S.view==='home' && !$('sheet'); }   // v1.8 첫 화면에서만 새로고침 (뒤로 가기 기록 보호)
 function onUpdated(){ UPD.pending=true; if(document.visibilityState!=='hidden' && idle()) location.reload(); else toast('새 버전이 준비됐습니다. 작업을 마치면 적용됩니다'); }
 if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1')){
   window.addEventListener('load', function(){
