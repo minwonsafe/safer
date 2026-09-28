@@ -27,12 +27,24 @@ ok(/html\{font-size:clamp\(13px,calc\(100vw \/ 24\.375\),18px\)/.test(css), '화
 ok(!/color-mix\(/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')), 'color-mix() 사용 (구형 iOS 호환 문제)');
 ok(!/@media \(max-width:370px\)|@media \(max-width:340px\)/.test(css), '폐지된 계단식 폭 규칙이 되살아남');
 ok(/@media \(max-height:700px\)/.test(css), '짧은 화면(700px) 대응 없음');
+section('작은 폰·글꼴 차이 (v1.9)');
+ok(/html\.hm\{font-size:clamp\(13px,min\(calc\(100vw \/ 24\.375\),calc\(\(100dvh - env\(safe-area-inset-top\) - env\(safe-area-inset-bottom\)\) \/ [\d.]+\)\),18px\)/.test(css), '첫 화면 높이 맞춤(폭·높이 중 작은 쪽) 기준값 없음');
+ok(/html\.hm\[data-fs="l"\]\{font-size:clamp\(13px,min\(/.test(css), '크게 모드 첫 화면 높이 맞춤 없음');
+ok(!/^html\{font-size:clamp\(13px,min\(/m.test(css), '높이 맞춤이 첫 화면이 아닌 전체 화면에 걸림 (짧은 폰에서 크게 모드가 무력화됨)');
+ok(/classList\.toggle\('hm', v==='home'\)/.test(html), '첫 화면 표시(html.hm) 전환 없음');
+ok(/#app\.home\{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh/.test(css) && /#app\.home \.grid\{flex:1 0 auto/.test(css), '첫 화면 높이 채우기(타일 늘림) 없음');
+ok(/\.mtile b\{white-space:normal/.test(css) && /\.mtile b \.mt\{overflow:visible;text-overflow:clip/.test(css), '메인 타일 제목 말줄임이 남아 있음 (넓은 글꼴에서 잘림)');
+ok(/\.brandbar,html\[data-fs="l"\] \.brandbar\{flex-direction:column/.test(css), '상단 바 2줄 구성 없음');
+ok(/\.brandapp\{[^}]*white-space:normal;overflow:visible;text-overflow:clip/.test(css), '앱 이름 말줄임이 남아 있음');
+{ const bo = html.indexOf('<span class="brandorg">'), ba = html.indexOf('<span class="brandapp">');
+  ok(bo > 0 && ba > bo, '상단 바 순서가 기관명→앱 이름이 아님'); }
+ok(/"short_name": "민원세이프"/.test(fs.readFileSync(path.join(ROOT,'manifest.json'),'utf8')) && /apple-mobile-web-app-title" content="민원세이프"/.test(head), '홈 화면 아이콘 이름이 민원세이프가 아님 (긴 이름은 잘림)');
 ok(/html\[data-fs="l"\]\{font-size:clamp\(/.test(css), '글자 크기 크게 모드 기준값 없음');
 ok(/html\[data-fs="l"\] \.mtile b\{/.test(css) && /html\[data-fs="l"\] \.brandapp\{/.test(css), '크게 모드에서 메인 제목·기관 바 보호 규칙 없음 (줄바꿈·넘침 위험)');
 
 section('삭제·변경된 문구가 되살아나지 않았는지');
 ['지금 말할 것','지금 누를 것','이 행위의 처벌','몰라서 손해','피소가 곧','82건','공식 발생보고서 서식이 아님',
- '고용관리과 승인','발생보고서(초안)','직원 업무지원','법령 확인 전']
+ '고용관리과 승인','발생보고서(초안)','직원 업무지원','법령 확인 전','멘트 복사','문구 복사','조문·형량 복사','글자만 복사','기록 복사','방금 통화 기록 불러오기']
   .forEach(w => ok(html.indexOf(w) < 0, `'${w}' 문구가 남아 있음`));
 
 section('스크립트 문법·데이터');
@@ -67,6 +79,28 @@ if (D) {
   ok(D.CASES.length === 4, '참고 대응 사례 4건이어야 함');
   ok(['위기 상황 대응','직원 보호·지원','관련 법적 근거','참고 대응 사례'].every((t,i) => Object.values(D.MAIN)[i].t === t), '메인 4개 메뉴 명칭이 바뀜');
   ok(Object.keys(D.HELP).length === 4, '직원 보호·지원 탭 4개여야 함');
+}
+
+section('뒤로 가기·보고서 저장 (v1.8)');
+ok(/addEventListener\('popstate'/.test(js) && /function navPush\(/.test(js) && /function doBack\(/.test(js), '안드로이드 뒤로 버튼 처리(popstate) 없음 — 뒤로 버튼에 앱이 닫힘');
+ok(/b\.onclick=navBack/.test(js), '화면 왼쪽 위 ‹ 버튼이 뒤로 가기 처리(navBack)를 거치지 않음');
+ok(/function idle\(\)\{[^}]*S\.view==='home'/.test(js), '자동 업데이트 새로고침이 첫 화면으로 한정되지 않음');
+ok(/id=\\?"sv-img\\?"/.test(js) && /id=\\?"sv-pdf\\?"/.test(js), '발생 경위 저장 버튼(이미지·PDF) 없음');
+ok(!/sv-share|카톡·메일로 보내기/.test(js), '폐지한 보내기 버튼이 되살아남');
+ok(/특이민원 담당자<\/b>에게 경위를 알릴 때/.test(js), '저장 버튼 아래 활용 안내 문구 없음');
+ok(/data-rec=/.test(js) && /R\.rec=st/.test(js), '보고서 1단계 통화 기록 고르기 없음');
+ok(/function expPdf\(/.test(js) && /function pdfBytes\(/.test(js) && /function expPng\(/.test(js), 'PDF·이미지 만들기 함수 없음');
+if (ctx) {
+  try {
+    const pdf = vm.runInContext('pdfBytes([{jpg:new Uint8Array([255,216,255,217]),w:2,h:2},{jpg:new Uint8Array([255,216,255,217]),w:2,h:2}])', ctx);
+    const txt = Buffer.from(pdf).toString('latin1');
+    ok(txt.startsWith('%PDF-1.4') && /%%EOF\n$/.test(txt), 'PDF 머리·끝 표시 이상');
+    const sx = +txt.match(/startxref\n(\d+)/)[1];
+    ok(txt.slice(sx, sx + 4) === 'xref', 'PDF 목차(xref) 위치가 틀림');
+    const offs = txt.slice(sx).split('\n').filter(l => / 00000 n $/.test(l)).map(l => +l.slice(0, 10));
+    ok(offs.length === 8 && offs.every((o, i) => txt.slice(o).startsWith((i + 1) + ' 0 obj')), 'PDF 개체 위치가 목차와 다름');
+    ok(/\/Count 2/.test(txt), 'PDF 쪽수 표시 이상');
+  } catch (e) { ok(false, 'PDF 조립 실패: ' + e.message); }
 }
 
 section('manifest.json');

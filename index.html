@@ -552,6 +552,42 @@ html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.227
   .band{padding-top:.25rem;padding-bottom:1rem}
   .band .bic{width:3.5rem;height:3.5rem;flex-basis:3.5rem}
 }
+/* ══════════ v1.9 작은 폰·글꼴 차이 대응 ══════════
+   ① 첫 화면(html.hm)에서만 기준값 = 화면 폭 비례와 화면 높이 비례 중 작은 쪽 → 세로가 짧은 폰(SE 등)에서도 한 화면에 들어옴
+     (노치·홈바 여백을 뺀 높이 기준. vh 줄은 dvh 미지원 구형 브라우저용 예비값)
+     나머지 화면은 기존 폭 비례 그대로 → 짧은 폰에서도 '크게' 모드가 멘트·조문 화면에서 제대로 커짐
+   ② 상단 바 2줄(기관명 위 작게, 앱 이름 아래) — 앱 이름이 한 줄을 다 쓰므로 잘리지 않음
+   ③ 메인 타일 제목 말줄임(…) 폐지 → 단어 단위 2줄 허용 (갤럭시 글꼴처럼 폭이 넓은 글꼴 대응)
+   ④ 첫 화면을 화면 높이에 맞춤 — 긴 폰에서는 타일이 늘어나고 짧은 폰에서는 줄어듦 */
+html.hm{font-size:clamp(13px,min(calc(100vw / 24.375),calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 46)),18px)}
+html.hm{font-size:clamp(13px,min(calc(100vw / 24.375),calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 46)),18px)}
+html.hm[data-fs="l"]{font-size:clamp(13px,min(calc(100vw / 21.7634),calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 43.5)),20.16px)}
+html.hm[data-fs="l"]{font-size:clamp(13px,min(calc(100vw / 21.7634),calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 43.5)),20.16px)}
+/* 짧은 화면은 아래 짧은 화면 규칙(여백 축소)이 함께 적용되므로 나누는 값을 줄임 */
+@media (max-height:700px){
+  html.hm{font-size:clamp(13px,min(calc(100vw / 24.375),calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 42.5)),18px)}
+  html.hm{font-size:clamp(13px,min(calc(100vw / 24.375),calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 42.5)),18px)}
+  html.hm[data-fs="l"]{font-size:clamp(13px,min(calc(100vw / 21.7634),calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 42.5)),20.16px)}
+  html.hm[data-fs="l"]{font-size:clamp(13px,min(calc(100vw / 21.7634),calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 42.5)),20.16px)}
+}
+
+.brandbar,html[data-fs="l"] .brandbar{flex-direction:column;align-items:flex-start;justify-content:center;gap:.125rem;height:auto;
+  padding:calc(.5rem + env(safe-area-inset-top)) 1.125rem .5625rem}
+.brandorg,html[data-fs="l"] .brandorg{font-size:.6875rem;gap:.3125rem;color:var(--ink-soft);letter-spacing:-.01em}
+.govmark,html[data-fs="l"] .govmark{width:1rem;height:1rem;flex-basis:1rem}
+.brandapp{flex:0 0 auto;width:100%;font-size:1.1875rem;line-height:1.25;white-space:normal;overflow:visible;text-overflow:clip}
+html[data-fs="l"] .brandapp{font-size:1.0625rem}
+
+.mtile b{white-space:normal;align-items:flex-start;line-height:1.25}
+.mtile b .mt{overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:normal}
+.mtile .chev{align-self:flex-start;transform:translateY(.0625rem)}
+
+#app.home{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;
+  padding-bottom:calc(.75rem + env(safe-area-inset-bottom))}
+#app.home .grid{flex:1 0 auto;grid-auto-rows:1fr}
+#app.home .mtile{min-height:0}
+#app.home .foot{padding-top:.875rem}
+
 @media print{
   html{font-size:16px!important}
   @page{size:A4;margin:12mm}
@@ -584,7 +620,7 @@ html[data-fs="l"] .mtile{padding:.8929rem .8929rem 1.1161rem;border-radius:1.227
 <div class="toast" id="toast"></div>
 <script>
 /* ══════════════════════════════════════════
-   민원세이프 (특이민원 원터치 대응) — v1.8 · https://minwonsafe.github.io/safer/
+   민원세이프 (특이민원 원터치 대응) — v1.9 · https://minwonsafe.github.io/safer/
    구조: 제안서 V4(2026.9.13.) · '26.9.17 시안 검토 반영
    근거: 고용노동부 「특이민원 예방 및 대응요령」(2025. 8.)
    ══════════════════════════════════════════ */
@@ -622,7 +658,7 @@ function newReport(){
 /* 메인 4개 메뉴 — 검토 반영 명칭 */
 var MAIN = {
   situ:{t:'위기 상황 대응', s:'전화통화·대면방문·기타 상황', pic:'alert', ico:'siren', th:'th-navy'},
-  help:{t:'직원 보호·지원', s:'법률 · 보험 · 심리 · 휴식', pic:'shield', ico:'shieldUser', th:'th-purple'},
+  help:{t:'직원 보호·지원', s:'법률\u00A0· 보험\u00A0· 심리\u00A0· 휴식', pic:'shield', ico:'shieldUser', th:'th-purple'},
   law: {t:'관련 법적 근거', s:'위법행위별 조문과 형량', pic:'scale', ico:'docCheck', th:'th-teal'},
   case:{t:'참고 대응 사례', s:'판결로 확인된 4건', pic:'book', ico:'bookOpen', th:'th-brown'}
 };
@@ -650,7 +686,8 @@ function render(){
   else if(v==='report') { h=vReport(); }
   else if(v==='print')  { h=vPrint(); }
   var app=$('app');
-  app.className=th;
+  app.className=th + (v==='home' ? ' home' : '');
+  document.documentElement.classList.toggle('hm', v==='home');
   app.innerHTML = h + livePill();
   bind();
   if(v==='home'){ eqTiles(); bindInstall(); }
@@ -705,8 +742,8 @@ function vHome(){
   }
   return '' +
   '<div class="brandbar">' +
-    '<span class="brandapp">특이민원 원터치 대응</span>' +
     '<span class="brandorg"><img class="govmark" src="'+GOV_MARK+'" alt="">대구지방고용노동청</span>' +
+    '<span class="brandapp">특이민원 원터치 대응</span>' +
   '</div>' +
   '<div class="hero">' +
     '<button class="setbtn" id="m-set" aria-label="설정">'+ic('gear')+'<span>설정</span></button>' +
