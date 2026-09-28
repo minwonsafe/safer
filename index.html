@@ -8,12 +8,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="민원세이프">
+<meta name="apple-mobile-web-app-title" content="원터치대응">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<title>민원세이프 - 특이민원 원터치 대응</title>
+<title>특이민원 원터치 대응</title>
 <style>
 /* ══════════ v1.4 화면 비례 — 법ON 방식 ══════════
    모든 크기를 rem(글자 기준값의 배수)으로 지정하고 기준값을 화면 폭에 연동.
@@ -620,7 +620,7 @@ html[data-fs="l"] .brandapp{font-size:1.0625rem}
 <div class="toast" id="toast"></div>
 <script>
 /* ══════════════════════════════════════════
-   민원세이프 (특이민원 원터치 대응) — v1.9 · https://minwonsafe.github.io/safer/
+   특이민원 원터치 대응 (홈 화면 이름: 원터치대응) — v1.9.2 · https://minwonsafe.github.io/safer/
    구조: 제안서 V4(2026.9.13.) · '26.9.17 시안 검토 반영
    근거: 고용노동부 「특이민원 예방 및 대응요령」(2025. 8.)
    ══════════════════════════════════════════ */
@@ -2074,7 +2074,7 @@ function expPaint(x, items, y0, pageNo, pages, h){
     y+=hh;
   });
   x.font=expFont('400',17); x.fillStyle='#8A93A3';
-  x.fillText('민원세이프 · '+expStamp()+' 저장', EXP.M, h-EXP.M*0.5);
+  x.fillText('특이민원 원터치 대응 · '+expStamp()+' 저장', EXP.M, h-EXP.M*0.5);
   if(pages>1){ x.textAlign='right'; x.fillText(pageNo+' / '+pages, EXP.W-EXP.M, h-EXP.M*0.5); x.textAlign='left'; }
 }
 function durlBytes(u){ var b=atob(u.split(',')[1]), a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }

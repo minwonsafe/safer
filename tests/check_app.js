@@ -1,4 +1,4 @@
-// 민원세이프(특이민원 원터치 대응) — 배포 전 자동 검사 (외부 패키지 없이 node만으로 실행)
+// 특이민원 원터치 대응(원터치대응) — 배포 전 자동 검사 (외부 패키지 없이 node만으로 실행)
 // 하나라도 실패하면 exit 1 → GitHub Actions가 배포를 멈추고 기존 화면을 유지함
 const fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..');
@@ -27,6 +27,11 @@ ok(/html\{font-size:clamp\(13px,calc\(100vw \/ 24\.375\),18px\)/.test(css), '화
 ok(!/color-mix\(/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')), 'color-mix() 사용 (구형 iOS 호환 문제)');
 ok(!/@media \(max-width:370px\)|@media \(max-width:340px\)/.test(css), '폐지된 계단식 폭 규칙이 되살아남');
 ok(/@media \(max-height:700px\)/.test(css), '짧은 화면(700px) 대응 없음');
+section('앱 이름 통일 (v1.9.2)');
+ok(!/민원세이프/.test(html) && !/민원세이프/.test(fs.readFileSync(path.join(ROOT,'manifest.json'),'utf8')), '옛 이름(민원세이프)이 앱·manifest에 남아 있음');
+ok(/<title>특이민원 원터치 대응<\/title>/.test(html), '페이지 제목이 특이민원 원터치 대응이 아님');
+ok(/fillText\('특이민원 원터치 대응 · '\+expStamp\(\)/.test(html), '저장 이미지 하단 표기가 특이민원 원터치 대응이 아님');
+
 section('작은 폰·글꼴 차이 (v1.9)');
 ok(/html\.hm\{font-size:clamp\(13px,min\(calc\(100vw \/ 24\.375\),calc\(\(100dvh - env\(safe-area-inset-top\) - env\(safe-area-inset-bottom\)\) \/ [\d.]+\)\),18px\)/.test(css), '첫 화면 높이 맞춤(폭·높이 중 작은 쪽) 기준값 없음');
 ok(/html\.hm\[data-fs="l"\]\{font-size:clamp\(13px,min\(/.test(css), '크게 모드 첫 화면 높이 맞춤 없음');
@@ -38,7 +43,7 @@ ok(/\.brandbar,html\[data-fs="l"\] \.brandbar\{flex-direction:column/.test(css),
 ok(/\.brandapp\{[^}]*white-space:normal;overflow:visible;text-overflow:clip/.test(css), '앱 이름 말줄임이 남아 있음');
 { const bo = html.indexOf('<span class="brandorg">'), ba = html.indexOf('<span class="brandapp">');
   ok(bo > 0 && ba > bo, '상단 바 순서가 기관명→앱 이름이 아님'); }
-ok(/"short_name": "민원세이프"/.test(fs.readFileSync(path.join(ROOT,'manifest.json'),'utf8')) && /apple-mobile-web-app-title" content="민원세이프"/.test(head), '홈 화면 아이콘 이름이 민원세이프가 아님 (긴 이름은 잘림)');
+ok(/"short_name": "원터치대응"/.test(fs.readFileSync(path.join(ROOT,'manifest.json'),'utf8')) && /apple-mobile-web-app-title" content="원터치대응"/.test(head), '홈 화면 아이콘 이름이 원터치대응이 아니거나 두 곳이 다름 (6자 넘으면 잘림)');
 ok(/html\[data-fs="l"\]\{font-size:clamp\(/.test(css), '글자 크기 크게 모드 기준값 없음');
 ok(/html\[data-fs="l"\] \.mtile b\{/.test(css) && /html\[data-fs="l"\] \.brandapp\{/.test(css), '크게 모드에서 메인 제목·기관 바 보호 규칙 없음 (줄바꿈·넘침 위험)');
 
@@ -106,7 +111,7 @@ if (ctx) {
 section('manifest.json');
 let man = {};
 try { man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8')); ok(true); } catch (e) { ok(false, 'manifest.json 형식 오류'); }
-ok(man.name && man.short_name === '민원세이프', '앱 이름 없음 또는 홈 화면 이름이 민원세이프가 아님');
+ok(man.name && man.short_name === '원터치대응' && [...man.short_name].length <= 6, '앱 이름 없음 또는 홈 화면 이름이 원터치대응이 아님');
 ok(man.start_url && man.scope && man.display === 'standalone', 'start_url·scope·display 설정 누락');
 const sizes = (man.icons || []).map(i => i.sizes);
 ok(sizes.includes('192x192') && sizes.includes('512x512'), '192·512 아이콘 누락 (안드로이드 설치 조건)');
